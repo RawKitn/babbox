@@ -4,7 +4,11 @@
     "title": "Lister les pods dans un namespace",
     "command": "kubectl get pods --namespace={{ namespace }}",
     "category": "kubernetes",
-    "tags": ["kubernetes", "pods", "namespace"],
+    "tags": [
+      "kubernetes",
+      "pods",
+      "namespace"
+    ],
     "variables": [
       {
         "name": "namespace",
@@ -17,13 +21,80 @@
   },
   {
     "id": "002",
-    "title": "Supprimer tous les containers Docker stoppés",
+    "title": "Supprimer tous les containers Docker stopp\u00e9s",
     "command": "docker container prune -f",
     "category": "docker",
-    "tags": ["docker", "cleanup", "container"],
+    "tags": [
+      "docker",
+      "cleanup",
+      "container"
+    ],
     "variables": [],
     "created_at": "2025-04-20T20:50:00Z",
     "updated_at": "2025-04-20T20:50:00Z"
+  },
+  {
+    "id": "003",
+    "title": "Rechercher les fichiers de plus de 90 jours selon un pattern",
+    "command": "find {{ path }} -type f -name {{ pattern }} -mtime +90",
+    "category": "system",
+    "tags": [
+      "find",
+      "search",
+      "file"
+    ],
+    "variables": [
+      {
+        "name": "path",
+        "description": "Repertoire de recherche",
+        "default": "./"
+      },
+      {
+        "name": "pattern",
+        "description": "Pattern de recherche",
+        "default": "*.log"
+      }
+    ],
+    "created_at": "2025-04-20T20:50:00Z",
+    "updated_at": "2025-04-20T20:50:00Z"
+  },
+  {
+    "id": "004",
+    "title": "Redemarrer un service systemd",
+    "command": "systemctl restart {{ service }}",
+    "category": "system",
+    "tags": [
+      "systemd",
+      "service"
+    ],
+    "variables": [
+      {
+        "name": "service",
+        "description": "Nom du service cible",
+        "default": ""
+      }
+    ],
+    "created_at": "2025-04-20T19:28:26.648628Z",
+    "updated_at": "2025-04-20T19:28:26.648628Z"
+  },
+  {
+    "id": "005",
+    "title": "Rechercher un processus actif",
+    "command": "ps -ef | grep -i {{ processus }}",
+    "category": "system",
+    "tags": [
+      "ps",
+      "process",
+      "find"
+    ],
+    "variables": [
+      {
+        "name": "processus",
+        "description": "Processus \u00e0 rechercher",
+        "default": "ssh"
+      }
+    ],
+    "created_at": "2025-04-20T19:53:34.837592Z",
+    "updated_at": "2025-04-20T19:53:34.837592Z"
   }
 ]
-

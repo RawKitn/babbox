@@ -17,6 +17,24 @@ def load_commands():
         return json.load(f)
 
 @app.command()
+def help():
+    """
+    Affiche l’aide et la liste des commandes disponibles.
+    """
+    typer.echo("🧰 Babbox - Outil de stockage et d’exécution de commandes CLI")
+    typer.echo("\nCommandes disponibles :\n")
+    typer.echo("  add                         Ajouter une nouvelle commande")
+    typer.echo("  edit <ID>                   Modifier une commande existante")
+    typer.echo("  list                        Lister les commandes enregistrées")
+    typer.echo("      --category <CAT>          Listing par catégorie")
+    typer.echo("      --tag <TAG>               Listing par tag")
+    typer.echo("      --search <KEYWORD>        Listing par mot-clé")
+    typer.echo("  run <ID>                    Exécuter une commande")
+    typer.echo("  select                      Rechercher une commande via fzf (option --run)")
+    typer.echo("  tui                         Interface visuelle (TUI)")
+    typer.echo("  help                        Afficher cette aide")
+
+@app.command()
 def list_commands(category: str = typer.Option(None), tag: str = typer.Option(None)):
     """
     Liste les commandes avec filtres optionnels (catégorie, tag).
@@ -28,6 +46,36 @@ def list_commands(category: str = typer.Option(None), tag: str = typer.Option(No
         if tag and tag not in cmd["tags"]:
             continue
         typer.echo(f"[{cmd['id']}] {cmd['title']} ({cmd['category']})")
+
+
+@app.command()
+def list(
+    category: str = typer.Option(None, "--category", "-c", help="Filtrer par catégorie"),
+    tag: str = typer.Option(None, "--tag", "-t", help="Filtrer par tag"),
+    search: str = typer.Option(None, "--search", "-s", help="Filtrer par mot-clé dans le titre")
+):
+    """
+    Liste les commandes enregistrées avec des filtres optionnels.
+    """
+    commands = load_commands()
+    filtered = []
+
+    for cmd in commands:
+        if category and cmd["category"].lower() != category.lower():
+            continue
+        if tag and tag.lower() not in [t.lower() for t in cmd["tags"]]:
+            continue
+        if search and search.lower() not in cmd["title"].lower():
+            continue
+        filtered.append(cmd)
+
+    if not filtered:
+        typer.echo("⚠️  Aucune commande trouvée avec ces critères.")
+        raise typer.Exit()
+
+    for cmd in filtered:
+        typer.echo(f"🔹 [{cmd['id']}] {cmd['title']} ({cmd['category']}) — Tags: {', '.join(cmd['tags'])}")
+
 
 @app.command()
 def run(id: str):
@@ -82,8 +130,19 @@ def add():
 
     # Création de l'objet
     now = datetime.utcnow().isoformat() + "Z"
+    
+    # Récupération du dernier ID numérique
+    commands = load_commands()
+    existing_ids = [int(cmd["id"]) for cmd in commands if cmd["id"].isdigit()]
+    next_id = f"{(max(existing_ids) + 1) if existing_ids else 1:03}"
+
+    # Demande à l'utilisateur s’il souhaite personnaliser l’ID
+    use_custom_id = typer.confirm(f"Souhaites-tu définir un ID manuellement ? (sinon {next_id} sera utilisé)", default=False)
+    cmd_id = typer.prompt("ID de la commande", default=next_id) if use_custom_id else next_id
+
+
     new_command = {
-        "id": str(uuid.uuid4())[:8],
+        "id": cmd_id,
         "title": title,
         "command": command,
         "category": category,
