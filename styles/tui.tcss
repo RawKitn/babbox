@@ -1,0 +1,74 @@
+Screen {
+    background: #1e1e1e;
+    color: #ffffff;
+}
+
+Header, Footer {
+    dock: top;
+    padding: 1 2;
+    background: #333333;
+    color: #ffffff;
+    text-style: bold;
+}
+
+ListItem {
+    padding: 1 2;
+    border-bottom: solid #444444;
+    color: #dddddd;
+}
+
+ListItem .title {
+    color: #ffffff;
+    text-style: bold;
+    padding: 0 0 1 0;
+}
+
+ListItem .command {
+    color: #dcdcaa;
+    text-style: italic;
+    padding-left: 2;
+}
+
+ListItem .meta {
+    color: #808080;
+    padding-left: 2;
+    padding-top: 1;
+    padding-bottom: 1;
+    border-bottom: dashed #444444;
+}
+
+ListItem:hover {
+    background: #444444;
+}
+
+ListItem.--highlight {
+    background: #005f5f;
+    color: #ffffff;
+}
+
+.card {
+    background: #1e1e1e;
+    padding: 1 2;
+    border: round #444444;
+    margin: 1 0;
+}
+
+.card-title {
+    text-style: bold;
+    color: #ffffff;
+    padding-bottom: 1;
+}
+
+.card-command {
+    color: #dcdcaa;
+    padding-left: 2;
+    text-style: italic;
+}
+
+.card-meta {
+    color: #888888;
+    padding-top: 1;
+    padding-left: 2;
+    border-top: dashed #333333;
+}
+

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "001",
+    "title": "Lister les pods dans un namespace",
+    "command": "kubectl get pods --namespace={{ namespace }}",
+    "category": "kubernetes",
+    "tags": ["kubernetes", "pods", "namespace"],
+    "variables": [
+      {
+        "name": "namespace",
+        "description": "Nom du namespace Kubernetes",
+        "default": "default"
+      }
+    ],
+    "created_at": "2025-04-20T20:45:00Z",
+    "updated_at": "2025-04-20T20:45:00Z"
+  },
+  {
+    "id": "002",
+    "title": "Supprimer tous les containers Docker stoppés",
+    "command": "docker container prune -f",
+    "category": "docker",
+    "tags": ["docker", "cleanup", "container"],
+    "variables": [],
+    "created_at": "2025-04-20T20:50:00Z",
+    "updated_at": "2025-04-20T20:50:00Z"
+  }
+]
+
