@@ -281,5 +281,120 @@
     ],
     "created_at": "2025-04-21T02:44:26.173847Z",
     "updated_at": "2025-04-21T02:44:26.173847Z"
+  },
+  {
+    "id": "016",
+    "title": "Obtenir le SHA256 d'une cl\u00e9 priv\u00e9e",
+    "command": "openssl pkey -in {{ privkey }} -pubout -outform pem | sha256sum",
+    "category": "system",
+    "tags": [
+      "hash",
+      "certs",
+      "openssl"
+    ],
+    "variables": [
+      {
+        "name": "privkey",
+        "description": "Emplacement de la cl\u00e9 priv\u00e9e",
+        "default": "/etc/pki/ssl/private/privkey.key"
+      }
+    ],
+    "created_at": "2025-04-21T09:11:21.135920Z",
+    "updated_at": "2025-04-21T09:11:21.135920Z"
+  },
+  {
+    "id": "017",
+    "title": "Obtenir le SHA256 d'une cl\u00e9 publique (certificat)",
+    "command": "openssl x509 -in {{ pubcert }} -pubkey -noout -outform pem | sha256sum",
+    "category": "system",
+    "tags": [
+      "hash",
+      "certs",
+      "openssl"
+    ],
+    "variables": [
+      {
+        "name": "pubcert",
+        "description": "EMplacement de la cl\u00e9 publique (certificat)",
+        "default": "/etc/pki/ssl/certs/localhost.crt"
+      }
+    ],
+    "created_at": "2025-04-21T09:13:55.346991Z",
+    "updated_at": "2025-04-21T09:13:55.346991Z"
+  },
+  {
+    "id": "018",
+    "title": "Afficher les contextes",
+    "command": "kubectl config get-contexts",
+    "category": "kubernetes",
+    "tags": [
+      "context",
+      "kubectl"
+    ],
+    "variables": [],
+    "created_at": "2025-04-21T09:20:22.436932Z",
+    "updated_at": "2025-04-21T09:20:22.436932Z"
+  },
+  {
+    "id": "019",
+    "title": "Afficher le contexte actuel",
+    "command": "kubectl config current-context",
+    "category": "kubernetes",
+    "tags": [
+      "context",
+      "kubectl"
+    ],
+    "variables": [],
+    "created_at": "2025-04-21T09:21:07.460973Z",
+    "updated_at": "2025-04-21T09:21:07.460973Z"
+  },
+  {
+    "id": "020",
+    "title": "S\u00e9lectionner un contexte",
+    "command": "kubectl config use-context {{ context }}",
+    "category": "kubernetes",
+    "tags": [
+      "context",
+      "kubectl"
+    ],
+    "variables": [
+      {
+        "name": "context",
+        "description": "Nom du contexte",
+        "default": "kube-system"
+      }
+    ],
+    "created_at": "2025-04-21T09:23:27.023937Z",
+    "updated_at": "2025-04-21T09:23:27.023937Z"
+  },
+  {
+    "id": "021",
+    "title": "Remplacer toutes les occurences d'un pattern dans un fichier",
+    "command": "sed -i 's/{{ pattern }}/{{ new-pattern }}/g' {{ file }}",
+    "category": "system",
+    "tags": [
+      "replace",
+      "pattern",
+      "sed"
+    ],
+    "variables": [
+      {
+        "name": "pattern",
+        "description": "Expression \u00e0 remplacer",
+        "default": ""
+      },
+      {
+        "name": "new-pattern",
+        "description": "Expression de remplacement",
+        "default": ""
+      },
+      {
+        "name": "file",
+        "description": "Fichier cible",
+        "default": "file"
+      }
+    ],
+    "created_at": "2025-04-21T09:35:44.223956Z",
+    "updated_at": "2025-04-21T09:35:44.223956Z"
   }
 ]
