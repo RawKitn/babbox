@@ -16,6 +16,10 @@ def load_commands():
     with open(DB_PATH, "r") as f:
         return json.load(f)
 
+def save_commands(commands):
+    with open(DB_PATH, "w") as f:
+        json.dump(commands, f, indent=2)
+
 @app.command()
 def help():
     """
@@ -246,12 +250,73 @@ def tui():
     Lance l'interface TUI pour naviguer et exécuter les commandes.
     """
     import asyncio
+    import uuid
+    from textual.screen import Screen
     from textual.app import App, ComposeResult
     from textual.containers import Vertical, Horizontal
-    from textual.widgets import Header, Footer, ListView, ListItem, Static
+    from textual.widgets import Input, Button, Header, Footer, ListView, ListItem, Static
     from textual.reactive import reactive
+    from textual.message import Message
+    from datetime import datetime
+
 
     commands = load_commands()
+
+    class CommandAdded(Message):
+        def __init__(self, command: dict) -> None:
+            self.command = command
+            super().__init__()
+
+    class CommandAddScreen(Screen):
+
+        def compose(self) -> ComposeResult:
+            yield Header(show_clock=True)
+            yield Static("➕ Nouvelle commande", classes="screen-title")
+            yield Input(placeholder="Titre de la commande", id="title")
+            yield Input(placeholder="Commande (avec {{ var }})", id="command")
+            yield Input(placeholder="Catégorie", id="category")
+            yield Input(placeholder="Tags (séparés par des virgules)", id="tags")
+            yield Button("Valider", id="submit", variant="primary")
+            yield Button("Annuler", id="cancel", variant="default")
+            yield Footer()
+
+        async def on_button_pressed(self, event: Button.Pressed) -> None:
+            if event.button.id == "submit":
+                title = self.query_one("#title", Input).value.strip()
+                command = self.query_one("#command", Input).value.strip()
+                category = self.query_one("#category", Input).value.strip()
+                tags_str = self.query_one("#tags", Input).value.strip()
+                tags = [tag.strip() for tag in tags_str.split(",") if tag.strip()]
+
+                if not title or not command or not category:
+                    return  # Optionnel : message d’erreur
+
+                commands = load_commands()
+                next_id = f"{(max([int(c['id']) for c in commands if c['id'].isdigit()] or [0]) + 1):03}"
+
+                new_command = {
+                    "id": next_id,
+                    "title": title,
+                    "command": command,
+                    "category": category,
+                    "tags": tags,
+                    "variables": [],
+                    "created_at": datetime.utcnow().isoformat() + "Z",
+                    "updated_at": datetime.utcnow().isoformat() + "Z"
+                }
+
+                commands.append(new_command)
+                save_commands(commands)
+
+                # On pop l’écran d’ajout
+                self.app.post_message(CommandAdded(new_command))
+
+                # Rafraîchir la liste dans l’app principale
+                if isinstance(self.app, CommandTUI):
+                    self.app.refresh_list()
+
+            elif event.button.id == "cancel":
+                await self.app.pop_screen()
 
 
     class CommandCard(Vertical):
@@ -262,11 +327,27 @@ def tui():
             self.title = Static(f"📦 {command_data['title']}", classes="card-title")
             self.cmdline = Static(command_data["command"], classes="card-command")
             self.meta = Static(
-                f"[{command_data['category']}]  Tags: {', '.join(command_data['tags'])}",
+                f"[{command_data['category']}]  Tags: {', '.join(command_data['tags'])}\n",
                 classes="card-meta"
             )
+            # Ajout d'un bloc de description des variables
+            var_lines = []
+            if command_data["variables"]:
+                for var in command_data["variables"]:
+                    desc = var.get("description", "—")
+                    default = var.get("default", "")
+                    line = f"- {var['name']} : {desc} (par défaut : {default})"
+                    var_lines.append(line)
+            else:
+                var_lines.append("Aucune variable.")
+
+            self.var_block = Static(
+                "🔧 Variables :\n" + "\n".join(var_lines),
+                classes="card-variables"
+            )
+
         async def on_mount(self):
-            self.mount(self.title, self.cmdline, self.meta)
+            self.mount(self.title, self.cmdline, self.meta,self.var_block)
 
     class CommandItem(ListItem):
         def __init__(self, command_data: dict):
@@ -283,11 +364,35 @@ def tui():
 
         selected_command = reactive(None)
 
+        async def on_command_added(self, message: CommandAdded) -> None:
+            # Revenir à l'écran principal et recharger
+            await self.pop_screen()
+            self.refresh_list()
+
+        def refresh_list(self):
+            if not hasattr(self, 'list_view'):
+                return  # sécurité
+            self.list_view.clear()
+            for cmd in load_commands():
+                self.list_view.append(CommandItem(cmd))
+            self.set_focus(self.list_view)
+
+
         def compose(self) -> ComposeResult:
             yield Header()
             self.list_view = ListView(*[CommandItem(cmd) for cmd in commands])
             yield Vertical(self.list_view)
+            yield Button("➕ Ajouter une commande", id="add", variant="primary")
             yield Footer()
+
+        async def on_button_pressed(self, event: Button.Pressed) -> None:
+            if event.button.id == "add":
+                await self.push_screen(CommandAddScreen())
+
+        async def on_command_added(self, message: CommandAdded) -> None:
+            self.refresh_list()
+            self.set_focus(self.list_view)
+            await self.pop_screen()
 
         def on_list_view_selected(self, event: ListView.Selected):
             self.selected_command = event.item.command_data

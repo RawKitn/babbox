@@ -396,5 +396,50 @@
     ],
     "created_at": "2025-04-21T09:35:44.223956Z",
     "updated_at": "2025-04-21T09:35:44.223956Z"
+  },
+  {
+    "id": "022",
+    "title": "Initialiser une projet Terraform",
+    "command": "terraform init",
+    "category": "terraform",
+    "tags": [
+      "init",
+      "terraform"
+    ],
+    "variables": [],
+    "created_at": "2025-04-21T20:37:11.022261Z",
+    "updated_at": "2025-04-21T20:37:11.022261Z"
+  },
+  {
+    "id": "023",
+    "title": "Appliquer un changement Terraform sur une ressource cible",
+    "command": "terraform apply -target=\\\"{{ rss-name }}\\\"",
+    "category": "terraform",
+    "tags": [
+      "apply",
+      "target",
+      "terraform"
+    ],
+    "variables": [
+      {
+        "name": "rss-name",
+        "description": "Nom de la ressource cible Terraform (sous forme de type-rss.rss-name\udcc3)",
+        "default": ""
+      }
+    ],
+    "created_at": "2025-04-21T20:43:45.756500Z",
+    "updated_at": "2025-04-21T20:43:45.756500Z"
+  },
+  {
+    "id": "024",
+    "title": "test",
+    "command": "test",
+    "category": "test",
+    "tags": [
+      "test"
+    ],
+    "variables": [],
+    "created_at": "2025-04-23T17:06:39.781195Z",
+    "updated_at": "2025-04-23T17:06:39.781201Z"
   }
 ]

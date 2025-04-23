@@ -72,3 +72,8 @@ ListItem.--highlight {
     border-top: dashed #333333;
 }
 
+.card-variables {
+    color: #cccccc;
+    padding-left: 1;
+    text-style: italic;
+}
