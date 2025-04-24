@@ -16,6 +16,10 @@ def load_commands():
     with open(DB_PATH, "r") as f:
         return json.load(f)
 
+def save_commands(commands):
+    with open(DB_PATH, "w") as f:
+        json.dump(commands, f, indent=2)
+
 @app.command()
 def help():
     """
@@ -113,6 +117,8 @@ def add():
     command = typer.prompt("Commande (avec {{ variable }} si besoin)")
     category = typer.prompt("Catégorie")
     tags_str = typer.prompt("Tags (séparés par des virgules)")
+    description = typer.prompt("Description de la commande")
+    contexte = typer.prompt("Contexte d'utilisation (ex: maintenance, prod, dev...)")
     tags = [tag.strip() for tag in tags_str.split(",") if tag.strip()]
 
     variables = []
@@ -147,6 +153,8 @@ def add():
         "command": command,
         "category": category,
         "tags": tags,
+        "description": description,
+        "contexte": contexte,
         "variables": variables,
         "created_at": now,
         "updated_at": now
@@ -246,12 +254,109 @@ def tui():
     Lance l'interface TUI pour naviguer et exécuter les commandes.
     """
     import asyncio
+    import uuid
+    from textual.screen import Screen
     from textual.app import App, ComposeResult
     from textual.containers import Vertical, Horizontal
-    from textual.widgets import Header, Footer, ListView, ListItem, Static
+    from textual.widgets import Input, Button, Header, Footer, ListView, ListItem, Static
     from textual.reactive import reactive
+    from textual.message import Message
+    from datetime import datetime
+
 
     commands = load_commands()
+
+    class CommandAdded(Message):
+        def __init__(self, command: dict) -> None:
+            self.command = command
+            super().__init__()
+
+    class CommandAddScreen(Screen):
+
+        def compose(self) -> ComposeResult:
+            yield Header(show_clock=True)
+            yield Static("➕ Nouvelle commande", classes="screen-title")
+            yield Input(placeholder="Titre de la commande", id="title")
+            yield Input(placeholder="Commande (avec {{ var }})", id="command")
+            yield Input(placeholder="Catégorie", id="category")
+            yield Input(placeholder="Tags (séparés par des virgules)", id="tags")
+            yield Input(placeholder="Description", id="description")
+            yield Input(placeholder="Contexte d'utilisation", id="contexte")
+            yield Button("➕ Ajouter une variable", id="add_var", variant="default")
+            self.var_inputs = []
+            yield Vertical(*self.var_inputs, id="variables-container")
+            yield Horizontal(
+                Button("Valider", id="submit", variant="primary"),
+                Button("Annuler", id="cancel", variant="default"),
+                classes="button-row"
+            )
+            yield Footer()
+
+        async def on_button_pressed(self, event: Button.Pressed) -> None:
+            if event.button.id == "submit":
+                title = self.query_one("#title", Input).value.strip()
+                command = self.query_one("#command", Input).value.strip()
+                category = self.query_one("#category", Input).value.strip()
+                tags_str = self.query_one("#tags", Input).value.strip()
+                description = self.query_one("#description", Input).value.strip()
+                contexte = self.query_one("#contexte", Input).value.strip()
+
+                tags = [tag.strip() for tag in tags_str.split(",") if tag.strip()]
+
+                variables = []
+                for row in self.var_inputs:
+                    name = row.query_one(".var-name", Input).value.strip()
+                    desc = row.query_one(".var-desc", Input).value.strip()
+                    default = row.query_one(".var-default", Input).value.strip()
+                    if name:
+                        variables.append({
+                            "name": name,
+                            "description": desc,
+                            "default": default
+                        })
+
+                if not title or not command or not category:
+                    return  # Optionnel : message d’erreur
+
+                commands = load_commands()
+                next_id = f"{(max([int(c['id']) for c in commands if c['id'].isdigit()] or [0]) + 1):03}"
+
+                new_command = {
+                    "id": next_id,
+                    "title": title,
+                    "command": command,
+                    "category": category,
+                    "tags": tags,
+                    "description": description,
+                    "contexte": contexte,
+                    "variables": variables,
+                    "created_at": datetime.utcnow().isoformat() + "Z",
+                    "updated_at": datetime.utcnow().isoformat() + "Z"
+                }
+
+                commands.append(new_command)
+                save_commands(commands)
+
+                # On pop l’écran d’ajout
+                self.app.post_message(CommandAdded(new_command))
+
+                # Rafraîchir la liste dans l’app principale
+                if isinstance(self.app, CommandTUI):
+                    self.app.refresh_list()
+
+            elif event.button.id == "add_var":
+                container = self.query_one("#variables-container", Vertical)
+
+                var_name = Input(placeholder="Nom", classes="var-name")
+                var_desc = Input(placeholder="Description", classes="var-desc")
+                var_default = Input(placeholder="Valeur par défaut", classes="var-default")
+                row = Horizontal(var_name, var_desc, var_default)
+                self.var_inputs.append(row)
+                await container.mount(row)  # monte dynamiquement le bloc
+
+
+            elif event.button.id == "cancel":
+                self.app.pop_screen()
 
 
     class CommandCard(Vertical):
@@ -262,11 +367,37 @@ def tui():
             self.title = Static(f"📦 {command_data['title']}", classes="card-title")
             self.cmdline = Static(command_data["command"], classes="card-command")
             self.meta = Static(
-                f"[{command_data['category']}]  Tags: {', '.join(command_data['tags'])}",
+                f"[{command_data['category']}]  Tags: {', '.join(command_data['tags'])}\n",
                 classes="card-meta"
             )
+            # Ajout d'un bloc de description des variables
+            var_lines = []
+            if command_data["variables"]:
+                for var in command_data["variables"]:
+                    desc = var.get("description", "—")
+                    default = var.get("default", "")
+                    line = f"- {var['name']} : {desc} (par défaut : {default})"
+                    var_lines.append(line)
+            else:
+                var_lines.append("Aucune variable.")
+
+            self.description_block = Static(
+                f"📝 Description : {command_data.get('description', '—')}",
+                classes="card-description"
+            )
+
+            self.context_block = Static(
+                f"📁 Contexte : {command_data.get('contexte', '—')}\n\n",
+                classes="card-context"
+            )
+
+            self.var_block = Static(
+                "🔧 Variables :\n" + "\n".join(var_lines),
+                classes="card-variables"
+            )
+
         async def on_mount(self):
-            self.mount(self.title, self.cmdline, self.meta)
+            self.mount(self.title, self.cmdline, self.meta, self.description_block, self.context_block, self.var_block)
 
     class CommandItem(ListItem):
         def __init__(self, command_data: dict):
@@ -283,11 +414,35 @@ def tui():
 
         selected_command = reactive(None)
 
+        async def on_command_added(self, message: CommandAdded) -> None:
+            # Revenir à l'écran principal et recharger
+            await self.pop_screen()
+            self.refresh_list()
+
+        def refresh_list(self):
+            if not hasattr(self, 'list_view'):
+                return  # sécurité
+            self.list_view.clear()
+            for cmd in load_commands():
+                self.list_view.append(CommandItem(cmd))
+            self.set_focus(self.list_view)
+
+
         def compose(self) -> ComposeResult:
             yield Header()
             self.list_view = ListView(*[CommandItem(cmd) for cmd in commands])
             yield Vertical(self.list_view)
+            yield Button("➕ Ajouter une commande", id="add", variant="primary")
             yield Footer()
+
+        async def on_button_pressed(self, event: Button.Pressed) -> None:
+            if event.button.id == "add":
+                await self.push_screen(CommandAddScreen())
+
+        async def on_command_added(self, message: CommandAdded) -> None:
+            self.refresh_list()
+            self.set_focus(self.list_view)
+            await self.pop_screen()
 
         def on_list_view_selected(self, event: ListView.Selected):
             self.selected_command = event.item.command_data

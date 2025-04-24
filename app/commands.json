@@ -96,5 +96,350 @@
     ],
     "created_at": "2025-04-20T19:53:34.837592Z",
     "updated_at": "2025-04-20T19:53:34.837592Z"
+  },
+  {
+    "id": "006",
+    "title": "Cr\u00e9er un tag annot\u00e9",
+    "command": "git tag -a {{ tag }} -m \\\"{{ message }}\\\"",
+    "category": "git",
+    "tags": [
+      "tag",
+      "version",
+      "release"
+    ],
+    "variables": [
+      {
+        "name": "tag",
+        "description": "Nom du tag (ex: v1.1)",
+        "default": ""
+      },
+      {
+        "name": "message",
+        "description": "Message de tag",
+        "default": ""
+      }
+    ],
+    "created_at": "2025-04-21T01:50:28.605551Z",
+    "updated_at": "2025-04-21T01:50:28.605551Z"
+  },
+  {
+    "id": "007",
+    "title": "Basculer de branche",
+    "command": "git checkout {{ branche }}",
+    "category": "git",
+    "tags": [
+      "branch",
+      "checkout"
+    ],
+    "variables": [
+      {
+        "name": "branche",
+        "description": "Branche cible",
+        "default": "development"
+      }
+    ],
+    "created_at": "2025-04-21T01:53:51.570629Z",
+    "updated_at": "2025-04-21T01:53:51.570629Z"
+  },
+  {
+    "id": "008",
+    "title": "Merger une branche (depuis une branche source)",
+    "command": "git merge {{ branche }}",
+    "category": "git",
+    "tags": [
+      "branch",
+      "merge"
+    ],
+    "variables": [
+      {
+        "name": "branche",
+        "description": "Branche cible",
+        "default": "production"
+      }
+    ],
+    "created_at": "2025-04-21T01:57:13.788784Z",
+    "updated_at": "2025-04-21T01:57:13.788784Z"
+  },
+  {
+    "id": "009",
+    "title": "Commit des changements",
+    "command": "git commit -m \\\"{{ message }}\\\"",
+    "category": "git",
+    "tags": [
+      "branch",
+      "commit"
+    ],
+    "variables": [
+      {
+        "name": "message",
+        "description": "Message du commit",
+        "default": ""
+      }
+    ],
+    "created_at": "2025-04-21T02:00:00.462840Z",
+    "updated_at": "2025-04-21T02:00:00.462840Z"
+  },
+  {
+    "id": "010",
+    "title": "Afficher le dernier commit",
+    "command": "git log --oneline -n 1",
+    "category": "git",
+    "tags": [
+      "branch",
+      "list",
+      "commit"
+    ],
+    "variables": [],
+    "created_at": "2025-04-21T02:08:33.556434Z",
+    "updated_at": "2025-04-21T02:08:33.556434Z"
+  },
+  {
+    "id": "011",
+    "title": "Afficher le status d'un service",
+    "command": "systemctl status {{ service }}",
+    "category": "system",
+    "tags": [
+      "status",
+      "service",
+      "systemd"
+    ],
+    "variables": [
+      {
+        "name": "service",
+        "description": "Service cible",
+        "default": ""
+      }
+    ],
+    "created_at": "2025-04-21T02:19:27.484557Z",
+    "updated_at": "2025-04-21T02:19:27.484557Z"
+  },
+  {
+    "id": "012",
+    "title": "D\u00e9marrer le service au d\u00e9marrage de l'instance",
+    "command": "systemctl enable {{ service }}",
+    "category": "system",
+    "tags": [
+      "enable",
+      "service",
+      "systemd"
+    ],
+    "variables": [
+      {
+        "name": "service",
+        "description": "Service cible",
+        "default": ""
+      }
+    ],
+    "created_at": "2025-04-21T02:31:25.458654Z",
+    "updated_at": "2025-04-21T02:31:25.458654Z"
+  },
+  {
+    "id": "013",
+    "title": "Afficher tous les containers (tout \u00e9tat)",
+    "command": "docker ps -a",
+    "category": "docker",
+    "tags": [
+      "list",
+      "container",
+      "docker"
+    ],
+    "variables": [],
+    "created_at": "2025-04-21T02:34:14.141956Z",
+    "updated_at": "2025-04-21T02:34:14.141956Z"
+  },
+  {
+    "id": "014",
+    "title": "Afficher les nodes d'un cluster kubernetes",
+    "command": "kubectl get nodes",
+    "category": "kubernetes",
+    "tags": [
+      "list",
+      "nodes",
+      "kubectl"
+    ],
+    "variables": [],
+    "created_at": "2025-04-21T02:38:25.314211Z",
+    "updated_at": "2025-04-21T02:38:25.314211Z"
+  },
+  {
+    "id": "015",
+    "title": "Afficher l'\u00e9tat du cluster",
+    "command": "curl -XGET \\\"{{ endpoint }}/_cluster/health\\\"",
+    "category": "elasticsearch",
+    "tags": [
+      "cluster",
+      "health",
+      "elasticsearch",
+      "opensearch"
+    ],
+    "variables": [
+      {
+        "name": "endpoint",
+        "description": "Endpoint cible \u00e0 interroger",
+        "default": "http://localhost:9200"
+      }
+    ],
+    "created_at": "2025-04-21T02:44:26.173847Z",
+    "updated_at": "2025-04-21T02:44:26.173847Z"
+  },
+  {
+    "id": "016",
+    "title": "Obtenir le SHA256 d'une cl\u00e9 priv\u00e9e",
+    "command": "openssl pkey -in {{ privkey }} -pubout -outform pem | sha256sum",
+    "category": "system",
+    "tags": [
+      "hash",
+      "certs",
+      "openssl"
+    ],
+    "variables": [
+      {
+        "name": "privkey",
+        "description": "Emplacement de la cl\u00e9 priv\u00e9e",
+        "default": "/etc/pki/ssl/private/privkey.key"
+      }
+    ],
+    "created_at": "2025-04-21T09:11:21.135920Z",
+    "updated_at": "2025-04-21T09:11:21.135920Z"
+  },
+  {
+    "id": "017",
+    "title": "Obtenir le SHA256 d'une cl\u00e9 publique (certificat)",
+    "command": "openssl x509 -in {{ pubcert }} -pubkey -noout -outform pem | sha256sum",
+    "category": "system",
+    "tags": [
+      "hash",
+      "certs",
+      "openssl"
+    ],
+    "variables": [
+      {
+        "name": "pubcert",
+        "description": "EMplacement de la cl\u00e9 publique (certificat)",
+        "default": "/etc/pki/ssl/certs/localhost.crt"
+      }
+    ],
+    "created_at": "2025-04-21T09:13:55.346991Z",
+    "updated_at": "2025-04-21T09:13:55.346991Z"
+  },
+  {
+    "id": "018",
+    "title": "Afficher les contextes",
+    "command": "kubectl config get-contexts",
+    "category": "kubernetes",
+    "tags": [
+      "context",
+      "kubectl"
+    ],
+    "variables": [],
+    "created_at": "2025-04-21T09:20:22.436932Z",
+    "updated_at": "2025-04-21T09:20:22.436932Z"
+  },
+  {
+    "id": "019",
+    "title": "Afficher le contexte actuel",
+    "command": "kubectl config current-context",
+    "category": "kubernetes",
+    "tags": [
+      "context",
+      "kubectl"
+    ],
+    "variables": [],
+    "created_at": "2025-04-21T09:21:07.460973Z",
+    "updated_at": "2025-04-21T09:21:07.460973Z"
+  },
+  {
+    "id": "020",
+    "title": "S\u00e9lectionner un contexte",
+    "command": "kubectl config use-context {{ context }}",
+    "category": "kubernetes",
+    "tags": [
+      "context",
+      "kubectl"
+    ],
+    "variables": [
+      {
+        "name": "context",
+        "description": "Nom du contexte",
+        "default": "kube-system"
+      }
+    ],
+    "created_at": "2025-04-21T09:23:27.023937Z",
+    "updated_at": "2025-04-21T09:23:27.023937Z"
+  },
+  {
+    "id": "021",
+    "title": "Remplacer toutes les occurences d'un pattern dans un fichier",
+    "command": "sed -i 's/{{ pattern }}/{{ new-pattern }}/g' {{ file }}",
+    "category": "system",
+    "tags": [
+      "replace",
+      "pattern",
+      "sed"
+    ],
+    "variables": [
+      {
+        "name": "pattern",
+        "description": "Expression \u00e0 remplacer",
+        "default": ""
+      },
+      {
+        "name": "new-pattern",
+        "description": "Expression de remplacement",
+        "default": ""
+      },
+      {
+        "name": "file",
+        "description": "Fichier cible",
+        "default": "file"
+      }
+    ],
+    "created_at": "2025-04-21T09:35:44.223956Z",
+    "updated_at": "2025-04-21T09:35:44.223956Z"
+  },
+  {
+    "id": "022",
+    "title": "Initialiser une projet Terraform",
+    "command": "terraform init",
+    "category": "terraform",
+    "tags": [
+      "init",
+      "terraform"
+    ],
+    "variables": [],
+    "created_at": "2025-04-21T20:37:11.022261Z",
+    "updated_at": "2025-04-21T20:37:11.022261Z"
+  },
+  {
+    "id": "023",
+    "title": "Appliquer un changement Terraform sur une ressource cible",
+    "command": "terraform apply -target=\\\"{{ rss-name }}\\\"",
+    "category": "terraform",
+    "tags": [
+      "apply",
+      "target",
+      "terraform"
+    ],
+    "variables": [
+      {
+        "name": "rss-name",
+        "description": "Nom de la ressource cible Terraform (sous forme de type-rss.rss-name\udcc3)",
+        "default": ""
+      }
+    ],
+    "created_at": "2025-04-21T20:43:45.756500Z",
+    "updated_at": "2025-04-21T20:43:45.756500Z"
+  },
+  {
+    "id": "024",
+    "title": "test",
+    "command": "test",
+    "category": "test",
+    "tags": [
+      "test"
+    ],
+    "variables": [],
+    "created_at": "2025-04-23T17:06:39.781195Z",
+    "updated_at": "2025-04-23T17:06:39.781201Z"
   }
 ]

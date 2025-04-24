@@ -72,3 +72,26 @@ ListItem.--highlight {
     border-top: dashed #333333;
 }
 
+.card-variables {
+    color: #cccccc;
+    padding-left: 1;
+    text-style: italic;
+}
+
+.button-row {
+    align-horizontal: right;
+    padding-top: 1;
+}
+
+#variables-container > Horizontal {
+    padding: 1 0;
+    height: auto;
+    dock: top;
+}
+
+.var-name,
+.var-desc,
+.var-default {
+    width: 1fr;
+    min-width: 20;
+}
