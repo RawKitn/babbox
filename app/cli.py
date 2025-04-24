@@ -117,6 +117,8 @@ def add():
     command = typer.prompt("Commande (avec {{ variable }} si besoin)")
     category = typer.prompt("Catégorie")
     tags_str = typer.prompt("Tags (séparés par des virgules)")
+    description = typer.prompt("Description de la commande")
+    contexte = typer.prompt("Contexte d'utilisation (ex: maintenance, prod, dev...)")
     tags = [tag.strip() for tag in tags_str.split(",") if tag.strip()]
 
     variables = []
@@ -151,6 +153,8 @@ def add():
         "command": command,
         "category": category,
         "tags": tags,
+        "description": description,
+        "contexte": contexte,
         "variables": variables,
         "created_at": now,
         "updated_at": now
@@ -276,8 +280,16 @@ def tui():
             yield Input(placeholder="Commande (avec {{ var }})", id="command")
             yield Input(placeholder="Catégorie", id="category")
             yield Input(placeholder="Tags (séparés par des virgules)", id="tags")
-            yield Button("Valider", id="submit", variant="primary")
-            yield Button("Annuler", id="cancel", variant="default")
+            yield Input(placeholder="Description", id="description")
+            yield Input(placeholder="Contexte d'utilisation", id="contexte")
+            yield Button("➕ Ajouter une variable", id="add_var", variant="default")
+            self.var_inputs = []
+            yield Vertical(*self.var_inputs, id="variables-container")
+            yield Horizontal(
+                Button("Valider", id="submit", variant="primary"),
+                Button("Annuler", id="cancel", variant="default"),
+                classes="button-row"
+            )
             yield Footer()
 
         async def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -286,7 +298,22 @@ def tui():
                 command = self.query_one("#command", Input).value.strip()
                 category = self.query_one("#category", Input).value.strip()
                 tags_str = self.query_one("#tags", Input).value.strip()
+                description = self.query_one("#description", Input).value.strip()
+                contexte = self.query_one("#contexte", Input).value.strip()
+
                 tags = [tag.strip() for tag in tags_str.split(",") if tag.strip()]
+
+                variables = []
+                for row in self.var_inputs:
+                    name = row.query_one(".var-name", Input).value.strip()
+                    desc = row.query_one(".var-desc", Input).value.strip()
+                    default = row.query_one(".var-default", Input).value.strip()
+                    if name:
+                        variables.append({
+                            "name": name,
+                            "description": desc,
+                            "default": default
+                        })
 
                 if not title or not command or not category:
                     return  # Optionnel : message d’erreur
@@ -300,7 +327,9 @@ def tui():
                     "command": command,
                     "category": category,
                     "tags": tags,
-                    "variables": [],
+                    "description": description,
+                    "contexte": contexte,
+                    "variables": variables,
                     "created_at": datetime.utcnow().isoformat() + "Z",
                     "updated_at": datetime.utcnow().isoformat() + "Z"
                 }
@@ -315,8 +344,19 @@ def tui():
                 if isinstance(self.app, CommandTUI):
                     self.app.refresh_list()
 
+            elif event.button.id == "add_var":
+                container = self.query_one("#variables-container", Vertical)
+
+                var_name = Input(placeholder="Nom", classes="var-name")
+                var_desc = Input(placeholder="Description", classes="var-desc")
+                var_default = Input(placeholder="Valeur par défaut", classes="var-default")
+                row = Horizontal(var_name, var_desc, var_default)
+                self.var_inputs.append(row)
+                await container.mount(row)  # monte dynamiquement le bloc
+
+
             elif event.button.id == "cancel":
-                await self.app.pop_screen()
+                self.app.pop_screen()
 
 
     class CommandCard(Vertical):
@@ -341,13 +381,23 @@ def tui():
             else:
                 var_lines.append("Aucune variable.")
 
+            self.description_block = Static(
+                f"📝 Description : {command_data.get('description', '—')}",
+                classes="card-description"
+            )
+
+            self.context_block = Static(
+                f"📁 Contexte : {command_data.get('contexte', '—')}\n\n",
+                classes="card-context"
+            )
+
             self.var_block = Static(
                 "🔧 Variables :\n" + "\n".join(var_lines),
                 classes="card-variables"
             )
 
         async def on_mount(self):
-            self.mount(self.title, self.cmdline, self.meta,self.var_block)
+            self.mount(self.title, self.cmdline, self.meta, self.description_block, self.context_block, self.var_block)
 
     class CommandItem(ListItem):
         def __init__(self, command_data: dict):
