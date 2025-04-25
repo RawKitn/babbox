@@ -125,11 +125,11 @@ def add():
     has_vars = typer.confirm("La commande utilise-t-elle des variables ?", default=False)
     while has_vars:
         name = typer.prompt("Nom de la variable")
-        description = typer.prompt("Description de cette variable")
+        gendesc = typer.prompt("Description de cette variable")
         default = typer.prompt("Valeur par défaut (laisser vide si aucune)", default="")
         variables.append({
             "name": name,
-            "description": description,
+            "description": gendesc,
             "default": default
         })
         has_vars = typer.confirm("Ajouter une autre variable ?", default=False)
@@ -306,12 +306,12 @@ def tui():
                 variables = []
                 for row in self.var_inputs:
                     name = row.query_one(".var-name", Input).value.strip()
-                    desc = row.query_one(".var-desc", Input).value.strip()
+                    var_desc = row.query_one(".var-desc", Input).value.strip()
                     default = row.query_one(".var-default", Input).value.strip()
                     if name:
                         variables.append({
                             "name": name,
-                            "description": desc,
+                            "description": var_desc,
                             "default": default
                         })
 

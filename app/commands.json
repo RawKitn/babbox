@@ -304,18 +304,19 @@
   },
   {
     "id": "017",
-    "title": "Obtenir le SHA256 d'une cl\u00e9 publique (certificat)",
+    "title": "Obtenir le SHA256 d'une cl\u00e9 publique",
     "command": "openssl x509 -in {{ pubcert }} -pubkey -noout -outform pem | sha256sum",
     "category": "system",
     "tags": [
       "hash",
       "certs",
+      "certificate",
       "openssl"
     ],
     "variables": [
       {
         "name": "pubcert",
-        "description": "EMplacement de la cl\u00e9 publique (certificat)",
+        "description": "Emplacement de la cl\u00e9 publique (certificat)",
         "default": "/etc/pki/ssl/certs/localhost.crt"
       }
     ],
@@ -432,14 +433,552 @@
   },
   {
     "id": "024",
-    "title": "test",
-    "command": "test",
-    "category": "test",
+    "title": "Lister les fichiers de plus de X Mo",
+    "command": "find {{ path }} -type f -size +{{ size }}M",
+    "category": "terraform",
     "tags": [
-      "test"
+      "apply",
+      "target",
+      "terraform"
     ],
+    "variables": [
+      {
+        "name": "path",
+        "description": "R\u00e9pertoire de d\u00e9part pour la recherche",
+        "default": "./"
+      },
+      {
+        "name": "size",
+        "description": "Taille souhait\u00e9e",
+        "default": "100M"
+      }
+    ],
+    "created_at": "2025-04-21T20:43:45.756500Z",
+    "updated_at": "2025-04-21T20:43:45.756500Z"
+  },
+  {
+    "id": "025",
+    "title": "Rechercher un mot dans tous les fichiers",
+    "command": "find {{ path }} -type f -exec grep -i '{{ keyword }}' {} +",
+    "category": "system",
+    "tags": [
+      "keyword",
+      "infile",
+      "find"
+    ],
+    "description": "Mot ou expression \u00e0 rechercher",
+    "contexte": "production",
+    "variables": [
+      {
+        "name": "path",
+        "description": "R\u00e9pertoire de d\u00e9part de la recherche",
+        "default": "./"
+      },
+      {
+        "name": "keyword",
+        "description": "Mot ou expression \u00e0 rechercher",
+        "default": ""
+      }
+    ],
+    "created_at": "2025-04-24T14:32:49.837463Z",
+    "updated_at": "2025-04-24T14:32:49.837463Z"
+  },
+  {
+    "id": "026",
+    "title": "Supprimer tous les fichiers dans un dossier",
+    "command": "find {{ path }} -type f -delete",
+    "category": "system",
+    "tags": [
+      "delete",
+      "file",
+      "find"
+    ],
+    "description": "R\u00e9p\udcc3ertoire de d\u00e9part de la recherche",
+    "contexte": "production",
+    "variables": [
+      {
+        "name": "path",
+        "description": "R\u00e9p\udcc3ertoire de d\u00e9part de la recherche",
+        "default": "./"
+      }
+    ],
+    "created_at": "2025-04-24T14:34:59.180192Z",
+    "updated_at": "2025-04-24T14:34:59.180192Z"
+  },
+  {
+    "id": "027",
+    "title": "Extraire une colonne d'un fichier",
+    "command": "awk '{print ${{ column }}}' {{ file }}",
+    "category": "system",
+    "tags": [
+      "extract",
+      "column",
+      "awk"
+    ],
+    "description": "Fichier cible",
+    "contexte": "prod",
+    "variables": [
+      {
+        "name": "column",
+        "description": "Num\u00e9ro de la colonne",
+        "default": "0"
+      },
+      {
+        "name": "file",
+        "description": "Fichier cible",
+        "default": "file.txt"
+      }
+    ],
+    "created_at": "2025-04-24T14:49:32.925685Z",
+    "updated_at": "2025-04-24T14:49:32.925685Z"
+  },
+  {
+    "id": "028",
+    "title": "Somme d'une colonne num\u00e9rique",
+    "command": "awk 'BEGIN {sum=0} {sum += ${{ col }}} END {print sum}' {{ file }}",
+    "category": "system",
+    "tags": [
+      "sum",
+      "column",
+      "awk"
+    ],
+    "description": "Fichier cible",
+    "contexte": "prod",
+    "variables": [
+      {
+        "name": "col",
+        "description": "Num\u00e9ro de la colonne \udcc3cible",
+        "default": "0"
+      },
+      {
+        "name": "file",
+        "description": "Fichier cible",
+        "default": "file.txt"
+      }
+    ],
+    "created_at": "2025-04-24T14:51:18.431031Z",
+    "updated_at": "2025-04-24T14:51:18.431031Z"
+  },
+  {
+    "id": "029",
+    "title": "Ecoute sur une interface r\u00e9seau",
+    "command": "tcpdump -i {{ interface }}",
+    "category": "network",
+    "tags": [
+      "packet",
+      "interface",
+      "tcpdump"
+    ],
+    "description": "Nom de l'interface",
+    "contexte": "prod",
+    "variables": [
+      {
+        "name": "interface",
+        "description": "Nom de l'interface",
+        "default": "eth0"
+      }
+    ],
+    "created_at": "2025-04-24T14:53:04.705168Z",
+    "updated_at": "2025-04-24T14:53:04.705168Z"
+  },
+  {
+    "id": "030",
+    "title": "Capture de paquet avec filtre IP/Port",
+    "command": "tcpdump -i {{ interface }} host {{ ip }} port {{ port }}",
+    "category": "network",
+    "tags": [
+      "packet",
+      "filter",
+      "tcpdump"
+    ],
+    "description": "Port cible",
+    "contexte": "prod",
+    "variables": [
+      {
+        "name": "interface",
+        "description": "Interface de capture",
+        "default": "eth0"
+      },
+      {
+        "name": "ip",
+        "description": "Host ou IP cible",
+        "default": "127.0.0.1"
+      },
+      {
+        "name": "port",
+        "description": "Port cible",
+        "default": "443"
+      }
+    ],
+    "created_at": "2025-04-24T19:03:46.405884Z",
+    "updated_at": "2025-04-24T19:03:46.405884Z"
+  },
+  {
+    "id": "031",
+    "title": "Lecture du paquet",
+    "command": "tcpdump -r {{ file }}",
+    "category": "network",
+    "tags": [
+      "packet",
+      "read",
+      "pcap",
+      "tcpdump"
+    ],
+    "description": "Fichier .pcap \u00e0 lire",
+    "contexte": "prod",
+    "variables": [
+      {
+        "name": "file",
+        "description": "Fichier .pcap \u00e0 lire",
+        "default": "record.pcap"
+      }
+    ],
+    "created_at": "2025-04-24T19:06:34.222888Z",
+    "updated_at": "2025-04-24T19:06:34.222888Z"
+  },
+  {
+    "id": "032",
+    "title": "Processus \u00e9coutant sur un port",
+    "command": "netstat -anp | grep {{ port }}",
+    "category": "network",
+    "tags": [
+      "port",
+      "listen",
+      "netstat"
+    ],
+    "description": "Port cible",
+    "contexte": "prod",
+    "variables": [
+      {
+        "name": "port",
+        "description": "Port cible",
+        "default": "443"
+      }
+    ],
+    "created_at": "2025-04-24T19:14:03.729102Z",
+    "updated_at": "2025-04-24T19:14:03.729102Z"
+  },
+  {
+    "id": "033",
+    "title": "Table de routage",
+    "command": "netstat -rn",
+    "category": "network",
+    "tags": [
+      "route",
+      "netstat"
+    ],
+    "description": "Affiche la table de routage",
+    "contexte": "prod",
     "variables": [],
-    "created_at": "2025-04-23T17:06:39.781195Z",
-    "updated_at": "2025-04-23T17:06:39.781201Z"
+    "created_at": "2025-04-24T19:14:58.205798Z",
+    "updated_at": "2025-04-24T19:14:58.205798Z"
+  },
+  {
+    "id": "034",
+    "title": "Connexions TCP actives",
+    "command": "netstat -at",
+    "category": "network",
+    "tags": [
+      "tcp",
+      "netstat"
+    ],
+    "description": "Affiche les connexions TCP actives",
+    "contexte": "prod",
+    "variables": [],
+    "created_at": "2025-04-24T19:16:08.472145Z",
+    "updated_at": "2025-04-24T19:16:08.472145Z"
+  },
+  {
+    "id": "035",
+    "title": "Cr\u00e9er un nouvel utilisateur",
+    "command": "useradd -d {{ homedir }} -m -s {{ shell }} {{ username }}",
+    "category": "system",
+    "tags": [
+      "user",
+      "add"
+    ],
+    "description": "Nom de l'utilisateur \u00e0 cr\u00e9er",
+    "contexte": "prod",
+    "variables": [
+      {
+        "name": "homedir",
+        "description": "R\u00e9pertoire home de l'utilisateur",
+        "default": "/home/user"
+      },
+      {
+        "name": "shell",
+        "description": "Shell \u00e0 attribuer \u00e0 l'utilisateur",
+        "default": "/bin/bash"
+      },
+      {
+        "name": "username",
+        "description": "Nom de l'utilisateur \u00e0 cr\u00e9er",
+        "default": "user"
+      }
+    ],
+    "created_at": "2025-04-24T19:27:35.611267Z",
+    "updated_at": "2025-04-24T19:27:35.611267Z"
+  },
+  {
+    "id": "036",
+    "title": "Affiche les BDD",
+    "command": "mysql -u {{ user }} -p -e \"SHOW DATABASES;\"",
+    "category": "database",
+    "tags": [
+      "bdd",
+      "db",
+      "mysql"
+    ],
+    "description": "Affiche les bases",
+    "contexte": "prod",
+    "variables": [
+      {
+        "name": "user",
+        "description": "Utilisateur MySQL",
+        "default": "root"
+      }
+    ],
+    "created_at": "2025-04-24T19:32:46.181647Z",
+    "updated_at": "2025-04-24T19:32:46.181647Z"
+  },
+  {
+    "id": "037",
+    "title": "Import d'un dump de base",
+    "command": "mysql -u {{ user }} -p {{ db }} < {{ dump.sql }}",
+    "category": "database",
+    "tags": [
+      "restore",
+      "import",
+      "mysql"
+    ],
+    "description": "Fichier de dump de la base",
+    "contexte": "prod, \u00eatre prudent avant d'ex\u00e9cuter la commande",
+    "variables": [
+      {
+        "name": "user",
+        "description": "Utilisateur MySQL",
+        "default": "user"
+      },
+      {
+        "name": "db",
+        "description": "Base cible du dump",
+        "default": "base"
+      },
+      {
+        "name": "dump.sql",
+        "description": "Fichier de dump de la base",
+        "default": "dump.sql"
+      }
+    ],
+    "created_at": "2025-04-24T19:37:15.471029Z",
+    "updated_at": "2025-04-24T19:37:15.471029Z"
+  },
+  {
+    "id": "038",
+    "title": "Sauvegarde d'une base",
+    "command": "mysqldump -u {{ user }} -p {{ db }} > {{ backup.sql }}",
+    "category": "database",
+    "tags": [
+      "dump",
+      "save",
+      "backup",
+      "mysql"
+    ],
+    "description": "Fichier cible",
+    "contexte": "prod",
+    "variables": [
+      {
+        "name": "user",
+        "description": "Utilisateur MySQL",
+        "default": "user"
+      },
+      {
+        "name": "db",
+        "description": "Base cible pour le dump",
+        "default": "base"
+      },
+      {
+        "name": "backup.sql",
+        "description": "Fichier cible",
+        "default": "dump.sql"
+      }
+    ],
+    "created_at": "2025-04-24T19:40:58.210020Z",
+    "updated_at": "2025-04-24T19:40:58.210020Z"
+  },
+  {
+    "id": "039",
+    "title": "Liste des processus",
+    "command": "ps -e -o comm=CMD,pid=PID,rss=RSS,pcpu,pmem,vsz=VSIZE(kB)",
+    "category": "system",
+    "tags": [
+      "list",
+      "ps"
+    ],
+    "description": "Liste les processus avec la commande, le PID, le %CPU et m\u00e9moire, swap...",
+    "contexte": "prod",
+    "variables": [],
+    "created_at": "2025-04-24T20:00:37.390841Z",
+    "updated_at": "2025-04-24T20:00:37.390841Z"
+  },
+  {
+    "id": "040",
+    "title": "Recherche de processus",
+    "command": "ps -ef | grep -i {{ keyword }}",
+    "category": "system",
+    "tags": [
+      "list",
+      "ps"
+    ],
+    "description": "Mot-cl\u00e9 de recherche",
+    "contexte": "prod",
+    "variables": [
+      {
+        "name": "keyword",
+        "description": "Mot-cl\u00e9 de recherche",
+        "default": "fpm"
+      }
+    ],
+    "created_at": "2025-04-24T20:04:29.730363Z",
+    "updated_at": "2025-04-24T20:04:29.730363Z"
+  },
+  {
+    "id": "041",
+    "title": "Logs d'un pod",
+    "command": "kubectl logs {{ pod_name }} -n {{ namespace }}",
+    "category": "kubernetes",
+    "tags": [
+      "log",
+      "pod",
+      "kubectl"
+    ],
+    "description": "Affiche les logs d'un pod",
+    "contexte": "prod",
+    "variables": [
+      {
+        "name": "pod_name",
+        "description": "Nom du pod",
+        "default": "nginx"
+      },
+      {
+        "name": "namespace",
+        "description": "namespace du pod",
+        "default": "kube-system"
+      }
+    ],
+    "created_at": "2025-04-25T03:19:56.236796Z",
+    "updated_at": "2025-04-25T03:19:56.236796Z"
+  },
+  {
+    "id": "042",
+    "title": "Shell dans un pod",
+    "command": "kubectl exec -it {{ pod_name }} -n {{ namespace }} -- /bin/bash",
+    "category": "kubernetes",
+    "tags": [
+      "shell",
+      "pod",
+      "kubectl"
+    ],
+    "description": "Namespace du pod",
+    "contexte": "prod",
+    "variables": [
+      {
+        "name": "pod_name",
+        "description": "Nom du pod",
+        "default": "ingress-nginx"
+      },
+      {
+        "name": "namespace",
+        "description": "Namespace du pod",
+        "default": "kube-system"
+      }
+    ],
+    "created_at": "2025-04-25T03:41:18.271014Z",
+    "updated_at": "2025-04-25T03:41:18.271014Z"
+  },
+  {
+    "id": "043",
+    "title": "D\u00e9tails d'un pod",
+    "command": "kubectl describe pod {{ pod_name }} -n {{ namespace }}",
+    "category": "kubernetes",
+    "tags": [
+      "desc",
+      "pod",
+      "kubectl"
+    ],
+    "description": "D\u00e9tails d'un pod (request et limit cpu/ram, events, status...)",
+    "contexte": "prod",
+    "variables": [
+      {
+        "name": "pod_name",
+        "description": "Nom du pod",
+        "default": "ingress-nginx"
+      },
+      {
+        "name": "namespace",
+        "description": "Namespace du pod",
+        "default": "kube-system"
+      }
+    ],
+    "created_at": "2025-04-25T03:44:35.773460Z",
+    "updated_at": "2025-04-25T03:44:35.773460Z"
+  },
+  {
+    "id": "044",
+    "title": "Ajout d'un repo Helm",
+    "command": "helm repo add {{ name }} {{ url }}",
+    "category": "helm",
+    "tags": [
+      "repo",
+      "helm"
+    ],
+    "description": "Ajoute un d\u00e9p\u00f4t Helm ",
+    "contexte": "prod",
+    "variables": [
+      {
+        "name": "name",
+        "description": "Nom du d\u00e9pot",
+        "default": "nginx"
+      },
+      {
+        "name": "url",
+        "description": "URL du repo",
+        "default": ""
+      }
+    ],
+    "created_at": "2025-04-25T03:53:48.971286Z",
+    "updated_at": "2025-04-25T03:53:48.971286Z"
+  },
+  {
+    "id": "045",
+    "title": "Installer un chart",
+    "command": "helm install {{ release }} {{ chart }} -n {{ namespace }}",
+    "category": "helm",
+    "tags": [
+      "chart",
+      "install",
+      "helm"
+    ],
+    "description": "Installe la release d'un chart dans un namespace",
+    "contexte": "prod",
+    "variables": [
+      {
+        "name": "release",
+        "description": "Nom de la release",
+        "default": "nginx-int"
+      },
+      {
+        "name": "chart",
+        "description": "Nom du chart",
+        "default": "nginx"
+      },
+      {
+        "name": "namespace",
+        "description": "Nom du namespace cible",
+        "default": "kube-system"
+      }
+    ],
+    "created_at": "2025-04-25T03:59:27.797510Z",
+    "updated_at": "2025-04-25T03:59:27.797510Z"
   }
 ]
