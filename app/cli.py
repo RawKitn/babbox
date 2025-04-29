@@ -241,12 +241,38 @@ def select(execute: bool = typer.Option(False, "--run", help="Exécuter la comma
     selected_line = result.stdout.strip()
     selected_id = selected_line.split(" :: ")[0]
 
-    if execute:
-        typer.echo(f"🚀 Exécution de la commande {selected_id}...")
-        run(selected_id)
-    else:
-        typer.echo(f"🆔 Commande sélectionnée : {selected_id}")
+    # Récupérer la commande sélectionnée
+    selected_cmd = next((cmd for cmd in commands if cmd["id"] == selected_id), None)
+    if not selected_cmd:
+        typer.echo(f"❌ Commande avec ID {selected_id} non trouvée.")
+        raise typer.Exit(code=1)
 
+    # Préparer la commande finale
+    template = Template(selected_cmd["command"])
+    vars_needed = {}
+
+    for var in selected_cmd.get("variables", []):
+        val = typer.prompt(f"{var['description']} ({var['name']})", default=var.get("default", ""))
+        vars_needed[var["name"]] = val
+
+    final_cmd = template.render(**vars_needed)
+
+
+    if execute:
+        typer.echo(f"\n👉 Commande à exécuter : {final_cmd}")
+        confirm = typer.confirm("Lancer cette commande ?", default=False)
+        if confirm:
+            import os
+            os.system(final_cmd)
+    else:
+        typer.echo(f"\n👉 Commande générée : {final_cmd}")
+
+
+#    if execute:
+#        typer.echo(f"🚀 Exécution de la commande {selected_id}...")
+#        run(selected_id)
+#    else:
+#        typer.echo(f"🆔 Commande sélectionnée : {selected_id}")
 
 @app.command()
 def tui():
@@ -419,20 +445,39 @@ def tui():
             await self.pop_screen()
             self.refresh_list()
 
-        def refresh_list(self):
-            if not hasattr(self, 'list_view'):
-                return  # sécurité
+        def refresh_list(self, filter_text: str = ""):
             self.list_view.clear()
+            filter_text = filter_text.lower()
             for cmd in load_commands():
-                self.list_view.append(CommandItem(cmd))
-            self.set_focus(self.list_view)
+                if (
+                    filter_text in cmd["title"].lower()
+                    or filter_text in cmd["command"].lower()
+                    or filter_text in cmd["category"].lower()
+                    or any(filter_text in tag.lower() for tag in cmd["tags"])
+                ):
+                    self.list_view.append(CommandItem(cmd))
 
+#        def refresh_list(self):
+#            if not hasattr(self, 'list_view'):
+#                return  # sécurité
+#            self.list_view.clear()
+#            for cmd in load_commands():
+#                self.list_view.append(CommandItem(cmd))
+#            self.set_focus(self.list_view)
+
+        async def on_input_changed(self, event: Input.Changed) -> None:
+            if event.input.id == "search":
+                self.refresh_list(filter_text=event.value)
 
         def compose(self) -> ComposeResult:
             yield Header()
             self.list_view = ListView(*[CommandItem(cmd) for cmd in commands])
             yield Vertical(self.list_view)
-            yield Button("➕ Ajouter une commande", id="add", variant="primary")
+            yield Horizontal(
+                Button("➕ Ajouter une commande", id="add", variant="primary"),
+                Input(placeholder="🔎 Rechercher...", id="search"),
+                id="action-bar"
+            )
             yield Footer()
 
         async def on_button_pressed(self, event: Button.Pressed) -> None:

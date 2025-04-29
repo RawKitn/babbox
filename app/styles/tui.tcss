@@ -95,3 +95,18 @@ ListItem.--highlight {
     width: 1fr;
     min-width: 20;
 }
+
+#action-bar {
+    align-horizontal: right;
+    padding: 1 2;
+    height: auto;
+}
+
+#action-bar Button {
+    margin-right: 1;
+}
+
+#action-bar Input {
+    width: 40;
+    min-width: 30;
+}
