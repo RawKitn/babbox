@@ -97,6 +97,7 @@ ListItem.--highlight {
 }
 
 #action-bar {
+    dock: bottom;
     align-horizontal: right;
     padding: 1 2;
     height: auto;
