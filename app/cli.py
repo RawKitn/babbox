@@ -124,7 +124,7 @@ def add():
     category = typer.prompt("Catégorie")
     tags_str = typer.prompt("Tags (séparés par des virgules)")
     description = typer.prompt("Description de la commande")
-    contexte = typer.prompt("Contexte d'utilisation (ex: maintenance, prod, dev...)")
+    contexte = typer.prompt("Criticité d'utilisation (ex: maintenance, prod, dev...)")
     tags = [tag.strip() for tag in tags_str.split(",") if tag.strip()]
 
     variables = []
@@ -160,7 +160,7 @@ def add():
         "category": category,
         "tags": tags,
         "description": description,
-        "contexte": contexte,
+        "criticité": contexte,
         "variables": variables,
         "created_at": now,
         "updated_at": now
@@ -313,7 +313,7 @@ def tui():
             yield Input(placeholder="Catégorie", id="category")
             yield Input(placeholder="Tags (séparés par des virgules)", id="tags")
             yield Input(placeholder="Description", id="description")
-            yield Input(placeholder="Contexte d'utilisation", id="contexte")
+            yield Input(placeholder="Criticité d'utilisation", id="contexte")
             yield Button("➕ Ajouter une variable", id="add_var", variant="default")
             self.var_inputs = []
             yield Vertical(*self.var_inputs, id="variables-container")
@@ -360,7 +360,7 @@ def tui():
                     "category": category,
                     "tags": tags,
                     "description": description,
-                    "contexte": contexte,
+                    "criticité": contexte,
                     "variables": variables,
                     "created_at": datetime.utcnow().isoformat() + "Z",
                     "updated_at": datetime.utcnow().isoformat() + "Z"
@@ -419,7 +419,7 @@ def tui():
             )
 
             self.context_block = Static(
-                f"📁 Contexte : {command_data.get('contexte', '—')}\n\n",
+                f"🌡️ Criticité : {command_data.get('contexte', '—')}\n\n",
                 classes="card-context"
             )
 
