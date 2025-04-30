@@ -1,7 +1,8 @@
-# cli.py
+#!/usr/bin/env python3.11
 
 import json
 import subprocess
+import sys
 import typer
 import uuid
 from datetime import datetime
@@ -10,7 +11,12 @@ from pathlib import Path
 
 app = typer.Typer()
 
-DB_PATH = Path("commands.json")
+#BASE_DIR = Path(__file__).resolve().parent
+
+BASE_DIR = Path(sys.argv[0]).resolve().parent
+
+DB_PATH = BASE_DIR / "commands.json"
+CSS_PATH = BASE_DIR / "styles" / "tui.tcss"
 
 def load_commands():
     with open(DB_PATH, "r") as f:
@@ -435,7 +441,7 @@ def tui():
             await self.mount(self.card)
 
     class CommandTUI(App):
-        CSS_PATH = "styles/tui.tcss"
+#        CSS_PATH = "styles/tui.tcss"
         BINDINGS = [("q", "quit", "Quitter"), ("enter", "run_command", "Exécuter")]
 
         selected_command = reactive(None)
